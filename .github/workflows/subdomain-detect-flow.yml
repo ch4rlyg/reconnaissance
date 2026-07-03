@@ -156,7 +156,7 @@ jobs:
             #         -F document="@./combined/$name"
     WebArchive:
         runs-on: ubuntu-latest
-        needs: SendTelegram
+        needs: FilterSubdomains
         steps:
             - name: Execute curl to WebArchive
               run: |
@@ -269,7 +269,6 @@ jobs:
                 name: gau-results
                 path:   
                   /tmp/results_gau.txt
-  
     FilterResultsURLs:
         runs-on: ubuntu-latest
         needs: [Katana, URLFinder, Hakrawler, Gau]
@@ -291,7 +290,6 @@ jobs:
               with:
                 name: all-results-combined
                 path: ./combined/all_results_combined.txt
-
     SendTelegram:
         runs-on: ubuntu-latest
         needs: FilterResultsURLs

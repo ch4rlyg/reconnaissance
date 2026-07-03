@@ -271,7 +271,7 @@ jobs:
                   /tmp/results_gau.txt
     FilterResultsURLs:
         runs-on: ubuntu-latest
-        needs: [Katana, URLFinder, Hakrawler, Gau]
+        needs: [WebArchive, Katana, URLFinder, Hakrawler, Gau]
         steps:
             - name: Download artifacts
               uses: actions/download-artifact@v4

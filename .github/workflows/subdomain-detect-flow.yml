@@ -1,4 +1,4 @@
-name: Subdomains Detect Flow
+name: Reconnaissance Flow
 
 on:
   schedule:

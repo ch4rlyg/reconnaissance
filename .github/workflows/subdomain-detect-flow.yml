@@ -1,4 +1,4 @@
-name: Subdomains Detect Flow
+name: Reconnaissance Flow
 
 on:
   schedule:
@@ -206,7 +206,7 @@ jobs:
              
             - name: Run urlfinder
               run: |
-                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/urlfinder -silent -o /tmp/results_urlfinder.txt
+                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/urlfinder -rl 20 -silent -o /tmp/results_urlfinder.txt
                 cat /tmp/results_urlfinder.txt
             
             - name: Upload results

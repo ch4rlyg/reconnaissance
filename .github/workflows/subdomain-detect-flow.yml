@@ -7,7 +7,7 @@ on:
     inputs:
       domain:
         description: 'Dominio a escanear'
-        default: yape.com.pe
+        default: 'yape.com.pe'
         required: true
         type: string
 

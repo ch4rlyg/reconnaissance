@@ -184,7 +184,7 @@ jobs:
               
             - name: Run katana
               run: |
-                /tmp/katana -u ./results/subdomains_alive/all_results_sorted.txt -d 5 -fx -ef woff,css,png,svg,jpg,woff2,jpeg,gif,svg -o /tmp/results_katana.txt
+                /tmp/katana -silent -u ./results/subdomains_alive/all_results_sorted.txt -d 5 -fx -ef woff,css,png,svg,jpg,woff2,jpeg,gif,svg -o /tmp/results_katana.txt
                 cat /tmp/results_katana.txt
             
             - name: Upload results
@@ -234,7 +234,7 @@ jobs:
         
             - name: Run hakrawler
               run: |
-                cat ./results/subdomains_alive/all_results_sorted.txt | hakrawler -u  > /tmp/results_hakrawler
+                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/hakrawler -u  > /tmp/results_hakrawler
                 cat /tmp/results_hakrawler
             
             - name: Upload results

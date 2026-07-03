@@ -234,7 +234,8 @@ jobs:
         
             - name: Run hakrawler
               run: |
-                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/hakrawler -u  > /tmp/results_hakrawler
+                cd /tmp/hakrawler-2.1 && go build
+                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/hakrawler-2.1/hakrawler -u  > /tmp/results_hakrawler
                 cat /tmp/results_hakrawler
             
             - name: Upload results

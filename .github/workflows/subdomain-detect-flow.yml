@@ -12,7 +12,7 @@ on:
         type: string
 
 env:
-  DOMAIN: ${{ github.event.inputs.domain }}
+  DOMAIN: ${{ github.event.inputs.domain || 'yape.com.pe' }}
         
 jobs:
     Subfinder:

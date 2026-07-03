@@ -279,7 +279,7 @@ jobs:
                 # Crear carpeta para resultados combinados
                 mkdir -p ./combined
                 cat ./results/katana-results/results_katana.txt ./results/urlfinder-results/results_urlfinder.txt ./results/hakrawler-results/results_hakrawler ./results/gau-results/results_gau.txt | sort -u > ./combined/all_results_combined.txt
-                cat ./combined/all_results_combined.txt"
+                cat ./combined/all_results_combined.txt
             
             - name: Upload combined results
               uses: actions/upload-artifact@v4

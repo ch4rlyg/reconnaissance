@@ -257,7 +257,7 @@ jobs:
             
             - name: Run gau
               run: |
-                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/gau > /tmp/results_gau.txt
+                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/gau --threads 5 > /tmp/results_gau.txt
                 cat /tmp/results_gau.txt
             
             - name: Upload results

@@ -293,14 +293,14 @@ jobs:
             - name: Download artifacts
               uses: actions/download-artifact@v4
               with:
-                path: ./combined
+                name: all-results-combined
+                path: ./urls
 
             - name: Send Telegram Notification
               run: |
                 name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S').txt"
-                echo "Total de subdominios: $(cat ./combined/all_results_sorted.txt | wc -l)" > ./combined/$name
-                echo >> ./combined/$name
-                cat ./combined/all_results_sorted.txt  >> ./combined/$name
+                echo "Total de subdominios: $(cat ./urls/all_results_sorted.txt | wc -l)" > ./combined/$name
+                cp ./urls/all_results_combined.txt ./$name
                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
                      -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
-                     -F document="@./combined/$name"
+                     -F document="@./$name"

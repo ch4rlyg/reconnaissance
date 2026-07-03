@@ -124,7 +124,7 @@ jobs:
                 
                 cat ./combined/all_results.txt  | sort -u > ./combined/all_results_sorted.txt
                 echo "✅ Resultados combinados guardados en ./combined/all_results_sorted.txt"
-
+                
             - name: Generate summary report
               run: |
                 # Crear resumen para GitHub Step Summary
@@ -142,7 +142,7 @@ jobs:
             - name: Upload combined results
               uses: actions/upload-artifact@v4
               with:
-                name: combined-results-${{ env.DOMAIN }}
+                name: subdomains_alive
                 path: ./combined/all_results_sorted.txt
 
             - name: Send Telegram Notification
@@ -160,17 +160,23 @@ jobs:
         steps:
             - name: Execute curl to WebArchive
               run: |
-                curl -s -k "http://web.archive.org/cdx/search/cdx?url=$TARGET/*&output=text&fl=original&collapse=urlkey" | sort -u > /tmp/wayback.txt
+                curl -s -k "http://web.archive.org/cdx/search/cdx?url=$TARGET/*&output=text&fl=original&collapse=urlkey" | sort -u > /tmp/results_wayback.txt
+            
             - name: Upload results
               uses: actions/upload-artifact@v4
               with:
                 name: wayback-results
                 path:
-                  /tmp/wayback.txt
+                  /tmp/results_wayback.txt 
     Katana:
         runs-on: ubuntu-latest
         needs: SendTelegram
         steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                path: ./results
+        
             - name: Download katana
               run: |
                 wget -O /tmp/katana.zip https://github.com/projectdiscovery/katana/releases/download/v1.2.2/katana_1.2.2_linux_amd64.zip
@@ -178,12 +184,87 @@ jobs:
               
             - name: Run katana
               run: |
-                /tmp/katana -u ${{ env.DOMAIN }} -d 5 -fx -ef woff,css,png,svg,jpg,woff2,jpeg,gif,svg -o /tmp/allurls.txt
-                cat /tmp/allurls.txt
+                /tmp/katana -u ./results/subdomains_alive -d 5 -fx -ef woff,css,png,svg,jpg,woff2,jpeg,gif,svg -o /tmp/results_katana.txt
+                cat /tmp/results_katana.txt
             
             - name: Upload results
               uses: actions/upload-artifact@v4
               with:
                 name: katana-results
                 path:   
-                  /tmp/allurls.txt
+                  /tmp/results_katana.txt
+    URLFinder:
+        runs-on: ubuntu-latest
+        needs: SendTelegram
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                path: ./results
+              
+            - name: Download urlfinder
+              run: |
+                wget -O /tmp/urlfinder.zip https://github.com/projectdiscovery/urlfinder/releases/download/v0.0.3/urlfinder_0.0.3_linux_amd64.zip
+                unzip /tmp/urlfinder.zip -d /tmp
+             
+            - name: Run urlfinder
+              run: |
+                cat ./results/subdomains_alive | /tmp/urlfinder -silent -o /tmp/results_urlfinder.txt
+                cat /tmp/results_urlfinder.txt
+            
+            - name: Upload results
+              uses: actions/upload-artifact@v4
+              with:
+                name: urlfinder-results
+                path:   
+                  /tmp/results_urlfinder.txt
+    Hakrawler:
+        runs-on: ubuntu-latest
+        needs: SendTelegram
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                path: ./results
+
+            - name: Download hakrawler
+              run: |
+                wget -O /tmp/hakrawler.zip https://github.com/hakluke/hakrawler/archive/refs/tags/2.1.zip
+                unzip /tmp/hakrawler.zip -d /tmp
+        
+            - name: Run hakrawler
+              run: |
+                cat ./results/subdomains_alive | hakrawler -u  > /tmp/results_hakrawler
+                cat /tmp/results_hakrawler
+            
+            - name: Upload results
+              uses: actions/upload-artifact@v4
+              with:
+                name: hakrawler-results
+                path:   
+                  /tmp/results_hakrawler
+    Gau:
+        runs-on: ubuntu-latest
+        needs: SendTelegram
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                path: ./results
+            
+            - name: Download gau
+              run: |
+                wget -O /tmp/gau.tar.gz https://github.com/lc/gau/releases/download/v2.2.4/gau_2.2.4_linux_amd64.tar.gz
+                tar -xzf /tmp/gau.tar.gz -C /tmp
+            
+            - name: Run gau
+              run: |
+                cat ./results/subdomains_alive | /tmp/gau > /tmp/results_gau.txt
+                cat /tmp/results_gau.txt
+            
+            - name: Upload results
+              uses: actions/upload-artifact@v4
+              with:
+                name: gau-results
+                path:   
+                  /tmp/results_gau.txt

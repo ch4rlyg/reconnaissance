@@ -8,11 +8,10 @@ on:
       domain:
         description: 'Dominio a escanear'
         required: true
-        default: 'yape.com.pe'
         type: string
 
 env:
-  DOMAIN: ${{ github.event.inputs.domain || 'yape.com.pe' }}
+  DOMAIN: ${{ github.event.inputs.domain }}
         
 jobs:
     Subfinder:
@@ -206,7 +205,7 @@ jobs:
              
             - name: Run urlfinder
               run: |
-                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/urlfinder -rl 20 -silent -o /tmp/results_urlfinder.txt
+                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/urlfinder -rl 20 -timeout 5 -silent -o /tmp/results_urlfinder.txt
                 cat /tmp/results_urlfinder.txt
             
             - name: Upload results

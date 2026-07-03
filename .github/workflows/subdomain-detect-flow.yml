@@ -154,3 +154,36 @@ jobs:
                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
                      -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
                      -F document="@./combined/$name"
+    WebArchive:
+        runs-on: ubuntu-latest
+        needs: SendTelegram
+        steps:
+            - name: Execute curl to WebArchive
+              run: |
+                curl -s -k "http://web.archive.org/cdx/search/cdx?url=$TARGET/*&output=text&fl=original&collapse=urlkey" | sort -u > /tmp/wayback.txt
+            - name: Upload results
+              uses: actions/upload-artifact@v4
+              with:
+                name: wayback-results
+                path:
+                  /tmp/wayback.txt
+    Katana:
+        runs-on: ubuntu-latest
+        needs: SendTelegram
+        steps:
+            - name: Download katana
+              run: |
+                wget -O /tmp/katana.zip https://github.com/projectdiscovery/katana/releases/download/v1.2.2/katana_1.2.2_linux_amd64.zip
+                unzip /tmp/katana.zip -d /tmp
+              
+            - name: Run katana
+              run: |
+                /tmp/katana -u ${{ env.DOMAIN }} -d 5 -fx -ef woff,css,png,svg,jpg,woff2,jpeg,gif,svg -o /tmp/allurls.txt
+                cat /tmp/allurls.txt
+            
+            - name: Upload results
+              uses: actions/upload-artifact@v4
+              with:
+                name: katana-results
+                path:   
+                  /tmp/allurls.txt

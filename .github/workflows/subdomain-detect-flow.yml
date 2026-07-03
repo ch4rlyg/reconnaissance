@@ -95,9 +95,6 @@ jobs:
                 # Crear carpeta para resultados combinados
                 mkdir -p ./combined
                 
-                # Combinar todos los resultados en un solo archivo
-                echo "" >> ./combined/all_results.txt
-                
                 # Subfinder
                 if [ -f ./results/subfinder-results/subfinder.txt ]; then
                   cat ./results/subfinder-results/subfinder.txt >> ./combined/all_results.txt

@@ -95,9 +95,6 @@ jobs:
                 # Crear carpeta para resultados combinados
                 mkdir -p ./combined
                 
-                # Combinar todos los resultados en un solo archivo
-                echo "" >> ./combined/all_results.txt
-                
                 # Subfinder
                 if [ -f ./results/subfinder-results/subfinder.txt ]; then
                   cat ./results/subfinder-results/subfinder.txt >> ./combined/all_results.txt
@@ -260,7 +257,7 @@ jobs:
             
             - name: Run gau
               run: |
-                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/gau > /tmp/results_gau.txt
+                cat ./results/subdomains_alive/all_results_sorted.txt | /tmp/gau --threads 5 > /tmp/results_gau.txt
                 cat /tmp/results_gau.txt
             
             - name: Upload results

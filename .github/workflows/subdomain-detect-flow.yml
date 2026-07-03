@@ -73,7 +73,7 @@ jobs:
                 name: assetfinder-results
                 path:   
                   /tmp/assetfinder.txt          
-    SendTelegram:
+    FilterSubdomains:
         runs-on: ubuntu-latest
         needs: [Subfinder, Findomain, Assetfinder]
         steps:
@@ -145,15 +145,15 @@ jobs:
                 name: subdomains_alive
                 path: ./combined/all_results_sorted.txt
 
-            - name: Send Telegram Notification
-              run: |
-                name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S').txt"
-                echo "Total de subdominios: $(cat ./combined/all_results_sorted.txt | wc -l)" > ./combined/$name
-                echo >> ./combined/$name
-                cat ./combined/all_results_sorted.txt  >> ./combined/$name
-                curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
-                     -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
-                     -F document="@./combined/$name"
+            #- name: Send Telegram Notification
+            #  run: |
+            #    name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S').txt"
+            #    echo "Total de subdominios: $(cat ./combined/all_results_sorted.txt | wc -l)" > ./combined/$name
+            #    echo >> ./combined/$name
+            #    cat ./combined/all_results_sorted.txt  >> ./combined/$name
+            #    curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
+            #         -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
+            #         -F document="@./combined/$name"
     WebArchive:
         runs-on: ubuntu-latest
         needs: SendTelegram
@@ -170,7 +170,7 @@ jobs:
                   /tmp/results_wayback.txt 
     Katana:
         runs-on: ubuntu-latest
-        needs: SendTelegram
+        needs: FilterSubdomains
         steps:
             - name: Download artifacts
               uses: actions/download-artifact@v4
@@ -195,7 +195,7 @@ jobs:
                   /tmp/results_katana.txt
     URLFinder:
         runs-on: ubuntu-latest
-        needs: SendTelegram
+        needs: FilterSubdomains
         steps:
             - name: Download artifacts
               uses: actions/download-artifact@v4
@@ -220,7 +220,7 @@ jobs:
                   /tmp/results_urlfinder.txt
     Hakrawler:
         runs-on: ubuntu-latest
-        needs: SendTelegram
+        needs: FilterSubdomains
         steps:
             - name: Download artifacts
               uses: actions/download-artifact@v4
@@ -246,7 +246,7 @@ jobs:
                   /tmp/results_hakrawler
     Gau:
         runs-on: ubuntu-latest
-        needs: SendTelegram
+        needs: FilterSubdomains
         steps:
             - name: Download artifacts
               uses: actions/download-artifact@v4
@@ -269,3 +269,44 @@ jobs:
                 name: gau-results
                 path:   
                   /tmp/results_gau.txt
+  
+    FilterResultsURLs:
+        runs-on: ubuntu-latest
+        needs: [Katana, URLFinder, Hakrawler, Gau]
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                path: ./results
+                
+            - name: Combine all results
+              run: |
+                # Crear carpeta para resultados combinados
+                mkdir -p ./combined
+                cat ./results/katana-results/results_katana.txt ./results/urlfinder-results/results_urlfinder.txt ./results/hakrawler-results/results_hakrawler ./results/gau-results/results_gau.txt | sort -u > ./combined/all_results_combined.txt
+                cat ./combined/all_results_combined.txt"
+            
+            - name: Upload combined results
+              uses: actions/upload-artifact@v4
+              with:
+                name: all-results-combined
+                path: ./combined/all_results_combined.txt
+
+    SendTelegram:
+        runs-on: ubuntu-latest
+        needs: FilterResultsURLs
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                path: ./combined
+
+            - name: Send Telegram Notification
+              run: |
+                name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S').txt"
+                echo "Total de subdominios: $(cat ./combined/all_results_sorted.txt | wc -l)" > ./combined/$name
+                echo >> ./combined/$name
+                cat ./combined/all_results_sorted.txt  >> ./combined/$name
+                curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
+                     -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
+                     -F document="@./combined/$name"

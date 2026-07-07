@@ -118,7 +118,10 @@ jobs:
                   echo "⚠️ Assetfinder: No se encontraron resultados" >> ./combined/all_results.txt
                 fi
                 
-                cat ./combined/all_results.txt  | sort -u > ./combined/all_results_sorted.txt
+                cat ./combined/all_results.txt  | sort -u > ./combined/all_results_sorted0.txt
+                wget -O /tmp/dnsx.zip https://github.com/projectdiscovery/dnsx/releases/download/v1.2.3/dnsx_1.2.3_linux_amd64.zip
+                unzip /tmp/dnsx.zip -d /tmp
+                cat ./combined/all_results_sorted0.txt | /tmp/dnsx -silent  > ./combined/all_results_sorted.txt
                 echo "✅ Resultados combinados guardados en ./combined/all_results_sorted.txt"
                 
             - name: Generate summary report

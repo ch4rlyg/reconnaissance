@@ -1,18 +1,17 @@
 name: Reconnaissance Flow
 
 on:
-  schedule:
-    - cron: '0 * * * *' 
+  #schedule:
+    #- cron: '0 * * * *' 
   workflow_dispatch:        # Ejecución manual (opcional)
     inputs:
       domain:
         description: 'Dominio a escanear'
-        default: 'yape.com.pe'
         required: true
         type: string
 
 env:
-  DOMAIN: ${{ github.event.inputs.domain || 'yape.com.pe' }}
+  DOMAIN: ${{ github.event.inputs.domain }}
         
 jobs:
     Subfinder:

@@ -302,7 +302,7 @@ jobs:
             - name: Filter JS files
               run: |
                 mkdir -p ./combined
-                grep -iE "\.js([?#].*)?$" ./results/all-results-combined/all_results_combined.txt
+                grep -iE "\.js([?#].*)?$" ./results/all-results-combined/all_results_combined.txt > ./combined/js_files.txt
                 cat ./combined/js_files.txt
             
             - name: Upload JS files
@@ -310,7 +310,7 @@ jobs:
               with:
                 name: js-files
                 path: ./combined/js_files.txt
-                
+
     SendTelegram:
         runs-on: ubuntu-latest
         needs: FilterResultsURLs

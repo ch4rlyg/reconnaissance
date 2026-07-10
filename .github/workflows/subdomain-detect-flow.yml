@@ -313,7 +313,7 @@ jobs:
 
             - name: Send Telegram Notification
               run: |
-                name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S').txt"
+                name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S')-jsfiles.txt"
                 cp ./urls/all_results_combined.txt ./$name
                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
                      -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \

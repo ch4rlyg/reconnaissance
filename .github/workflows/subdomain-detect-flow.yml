@@ -299,17 +299,17 @@ jobs:
               with:
                 path: ./results
 
-            - name: Filter JS files
-              run: |
-                mkdir -p ./combined
-                while read line; do
-                  curl -sL --max-redirs 3 "$line" \
-                  -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" \
-                  -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
-                  -H "Accept-Language: es-ES,es;q=0.9,en;q=0.8" \
-                  -H "Sec-Fetch-Mode: navigate" -H "Sec-Fetch-Site: none"  | grep -oE 'src="[^"]+\.js"'
-                done < ./results/subdomains_alive/all_results_sorted.txt
-                cat ./combined/js_files.txt     
+            #- name: Filter JS files
+            #  run: |
+            #    mkdir -p ./combined
+            #    while read line; do
+            #      curl -sL --max-redirs 3 "$line" \
+            #      -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" \
+            #      -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
+            #      -H "Accept-Language: es-ES,es;q=0.9,en;q=0.8" \
+            #      -H "Sec-Fetch-Mode: navigate" -H "Sec-Fetch-Site: none"  | grep -oE 'src="[^"]+\.js"'
+            #    done < ./results/subdomains_alive/all_results_sorted.txt
+            #    cat ./combined/js_files.txt     
 
             - name: Filter JS files
               run: |

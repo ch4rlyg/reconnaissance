@@ -311,6 +311,14 @@ jobs:
                 name: js-files
                 path: ./combined/js_files.txt
 
+            - name: Send Telegram Notification
+              run: |
+                name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S').txt"
+                cp ./urls/all_results_combined.txt ./$name
+                curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
+                     -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
+                     -F document="@./combined/js_files.txt" 
+
     SendTelegram:
         runs-on: ubuntu-latest
         needs: FilterResultsURLs

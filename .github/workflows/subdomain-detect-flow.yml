@@ -370,8 +370,8 @@ jobs:
             
             - name: Identify potential secrets in JS files
               run: |
-                INPUT_FILE="./results/js_files.txt"
-                OUTPUT_FILE="./results/secrets.txt"
+                INPUT_FILE="./results/js-file/js_files.txt"
+                OUTPUT_FILE="./results/js-file/secrets.txt"
                 USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
                 
                 > "$OUTPUT_FILE" #Make file empty before starting
@@ -398,12 +398,11 @@ jobs:
                     rm -rf main.js
                     sleep $((RANDOM % 3))
                 done < "$INPUT_FILE"
-                cat ./results/secrets.txt
             
             - name: Send Telegram Notification
               run: |
                 name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S')-secrets.txt"
-                cp ./results/secrets.txt ./$name
+                cp ./results/js-file/secrets.txt ./$name
                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
                      -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
                      -F document="@./$name"

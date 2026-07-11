@@ -372,10 +372,10 @@ jobs:
             - name: Identify potential secrets in JS files
               run: |
                 INPUT_FILE="./results/js-files/js_files.txt"
-                OUTPUT_FILE="${{ env.OUTPUT_FILE }}"
+                OUTPUT_FILE="./secrets.txt"
                 USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
                 
-                > "${{ env.OUTPUT_FILE }}" #Make file empty before starting
+                > "$OUTPUT_FILE" #Make file empty before starting
                 
                 while read -r urls_js; do
                     [[ -z "$urls_js" ]] && continue  # Skip empty lines
@@ -403,7 +403,7 @@ jobs:
             - name: Send Telegram Notification
               run: |
                 name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S')-secrets.txt"
-                cp "${{ env.OUTPUT_FILE }}" ./$name
+                cp ./secrets.txt ./$name
                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
                      -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
                      -F document="@./$name"

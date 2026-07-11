@@ -388,9 +388,10 @@ jobs:
                 while read -r urls_js; do
                     [[ -z "$urls_js" ]] && continue  # Skip empty lines
                     echo -e "\nProcessing: $urls_js"
-                    curl -sk "$urls_js" --max-time 6 -A "$USER_AGENT" 2>/dev/null -o ./main.js
+                    curl -sLk "$urls_js" --max-time 6 -A "$USER_AGENT" 2>/dev/null -o ./main.js
+                    cat ./main.js
                     echo -e "\tExtracting urls:"
-                    grep -oE '"(https?:\/\/|\/)[a-zA-Z0-9_\-\.\/]+"' ./main.js >> "$OUTPUT_FILE" # Extract URLs
+                    grep -oE '"?((http(s?))?:?\/?\/?|\/?)[a-zA-Z0-9._\/-?=&:]+(\.[a-zA-Z0-9._\/-?]+=&:)?"?' ./main.js >> "$OUTPUT_FILE" # Extract URLs
                     echo -e "\tSecrets: "
                     grep -oE '(api[_-]?key|secret|token|auth|password|bearer)["\047]?\s*[:=]\s*["\047][A-Za-z0-9_\-\.]{8,}["\047]' -i ./main.js >> "$OUTPUT_FILE" # Posibles secretos genéricos
                     echo -e "\tGoogle API key: "

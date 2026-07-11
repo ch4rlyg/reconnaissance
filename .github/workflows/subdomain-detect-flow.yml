@@ -398,6 +398,7 @@ jobs:
                     rm -rf main.js
                     sleep $((RANDOM % 3))
                 done < "$INPUT_FILE"
+                cat ./results/secrets.txt
             
             - name: Send Telegram Notification
               run: |

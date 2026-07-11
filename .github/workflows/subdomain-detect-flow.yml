@@ -380,23 +380,23 @@ jobs:
                 while read -r urls_js; do
                     [[ -z "$urls_js" ]] && continue  # Skip empty lines
                     echo -e "\nProcessing: $urls_js"
-                    curl -sk "$urls_js" --max-time 6 -A "$USER_AGENT" 2>/dev/null -o main.js
+                    curl -sk "$urls_js" --max-time 6 -A "$USER_AGENT" 2>/dev/null -o ./main.js
                     echo -e "\tExtracting urls:"
-                    grep -oE '"(https?:\/\/|\/)[a-zA-Z0-9_\-\.\/]+"' main.js >> "$OUTPUT_FILE" # Extract URLs
+                    grep -oE '"(https?:\/\/|\/)[a-zA-Z0-9_\-\.\/]+"' ./main.js >> "$OUTPUT_FILE" # Extract URLs
                     echo -e "\tSecrets: "
-                    grep -oE '(api[_-]?key|secret|token|auth|password|bearer)["\047]?\s*[:=]\s*["\047][A-Za-z0-9_\-\.]{8,}["\047]' -i main.js >> "$OUTPUT_FILE" # Posibles secretos genéricos
+                    grep -oE '(api[_-]?key|secret|token|auth|password|bearer)["\047]?\s*[:=]\s*["\047][A-Za-z0-9_\-\.]{8,}["\047]' -i ./main.js >> "$OUTPUT_FILE" # Posibles secretos genéricos
                     echo -e "\tGoogle API key: "
-                    grep -oE 'AIza[0-9A-Za-z_\-]{35}' main.js >> "$OUTPUT_FILE"           # Google API key
+                    grep -oE 'AIza[0-9A-Za-z_\-]{35}' ./main.js >> "$OUTPUT_FILE"           # Google API key
                     echo -e "\tAWS Access Key ID: "
-                    grep -oE 'AKIA[0-9A-Z]{16}' main.js >> "$OUTPUT_FILE"                 # AWS Access Key ID
+                    grep -oE 'AKIA[0-9A-Z]{16}' ./main.js >> "$OUTPUT_FILE"                 # AWS Access Key ID
                     echo -e "\tAWS Secret Access Key:"
-                    grep -oE 'sk_live_[0-9a-zA-Z]{24,}' main.js >> "$OUTPUT_FILE"         # Stripe
+                    grep -oE 'sk_live_[0-9a-zA-Z]{24,}' ./main.js >> "$OUTPUT_FILE"         # Stripe
                     echo -e "\tGitHub Token:"
-                    grep -oE 'ghp_[0-9a-zA-Z]{36}' main.js >> "$OUTPUT_FILE"              # GitHub token
+                    grep -oE 'ghp_[0-9a-zA-Z]{36}' ./main.js >> "$OUTPUT_FILE"              # GitHub token
                     echo -e "\tJWT:"
-                    grep -oE 'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*' main.js >> "$OUTPUT_FILE"  # JWT
+                    grep -oE 'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*' ./main.js >> "$OUTPUT_FILE"  # JWT
                     echo -e "\n"
-                    rm -rf main.js
+                    rm -rf ./main.js
                     sleep $((RANDOM % 3))
                 done < "$INPUT_FILE"
             

@@ -290,7 +290,7 @@ jobs:
                 name: all-results-combined
                 path: ./combined/all_results_combined.txt
 
-    FilesJS:
+    GetJsFiles:
       runs-on: ubuntu-latest
       needs: FilterResultsURLs
       steps:
@@ -299,22 +299,49 @@ jobs:
               with:
                 path: ./results
 
-            #- name: Filter JS files
-            #  run: |
-            #    mkdir -p ./combined
-            #    while read line; do
-            #      curl -sL --max-redirs 3 "$line" \
-            #      -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" \
-            #      -H "Accept: text/html,application/xhtml+xml,*/*;q=0.8" \
-            #      -H "Accept-Language: es-ES,es;q=0.9,en;q=0.8" \
-            #      -H "Sec-Fetch-Mode: navigate" -H "Sec-Fetch-Site: none"  | grep -oE 'src="[^"]+\.js"'
-            #    done < ./results/subdomains_alive/all_results_sorted.txt
-            #    cat ./combined/js_files.txt     
-
-            - name: Filter JS files
+            - name: First Filter JS files
               run: |
                 mkdir -p ./combined
                 grep -iE "\.js([?#].*)?$" ./results/all-results-combined/all_results_combined.txt >> ./combined/js_files.txt
+                cat ./combined/js_files.txt
+              
+            - name: Second Filter JS files
+              run: |
+                INPUT_FILE="./results/subdomains_alive/all_results_sorted.txt"
+                OUTPUT_FILE="js_hosts_v1"
+                OUTPUT_FILE2="js_hosts_v2"
+                USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
+                while read -r host; do
+                    if [[ ! "$host" =~ ^https?:// ]]; then
+                        host="https://$host"
+                    fi
+                    curl -sk "$host" --max-time 6 -A "$USER_AGENT" 2>/dev/null \
+                        | grep -oE '/_next/static/chunks/[^"]+\.js' \
+                        | while read -r js; do
+                            full_url="$host$js"
+                            echo "$full_url" >> "$OUTPUT_FILE"
+                          done
+                    sleep $((RANDOM % 3))
+                    curl -sk "$host" --max-time 6 -A "$USER_AGENT" 2>/dev/null \
+                        | grep -oE 'src="[^"]+\.js"' \
+                        | sed 's/src="//;s/"$//' \
+                        | while read -r js; do
+                            #1 Si comienza con ./ → QUITAR el punto
+                            if [[ "$js" == ./*  ]]; then
+                                js=$(echo "$js" | sed 's|^\./|/|') # Remove leading "./"
+                                full_url="$host$js"
+                            #2 Si comienza con / → NO agregar / (concatenar directo)
+                            elif [[ "$js" == /* ]]; then
+                                full_url="$host$js"
+                            #3 Si comienza con letra → AGREGAR /
+                            elif [[ "$js" =~ ^[a-zA-Z0-9] ]]; then
+                                full_url="$host/$js"
+                            fi
+                            echo "$full_url" >> "$OUTPUT_FILE2"
+                          done
+                done < "$INPUT_FILE"
+                cat "$OUTPUT_FILE" "$OUTPUT_FILE2" | sort -u > ./combined/js_files.txt
                 cat ./combined/js_files.txt
             
             - name: Upload JS files
@@ -323,13 +350,59 @@ jobs:
                 name: js-files
                 path: ./combined/js_files.txt
 
+            #- name: Send Telegram Notification
+            #  run: |
+            #    name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S')-jsfiles.txt"
+            #    cp ./combined/js_files.txt ./$name
+            #    curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
+            #         -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
+            #         -F document="@./$name"
+    
+    GetSecrets:
+        runs-on: ubuntu-latest
+        needs: GetJsFiles
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                name: js-files
+                path: ./results
+            
+            - name: Identify potential secrets in JS files
+              run: |
+                INPUT_FILE="./results/js_files.txt"
+                OUTPUT_FILE="./results/secrets.txt"
+                USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
+                while read -r urls_js; do
+                    echo -e "\nProcessing: $urls_js"
+                    curl -sk "$urls_js" --max-time 6 -A "$USER_AGENT" 2>/dev/null -o main.js
+                    echo -e "\tExtracting urls:"
+                    grep -oE '"(https?:\/\/|\/)[a-zA-Z0-9_\-\.\/]+"' main.js >> "$OUTPUT_FILE" # Extract URLs
+                    echo -e "\tSecrets: "
+                    grep -oE '(api[_-]?key|secret|token|auth|password|bearer)["\047]?\s*[:=]\s*["\047][A-Za-z0-9_\-\.]{8,}["\047]' -i main.js >> "$OUTPUT_FILE" # Posibles secretos genéricos
+                    echo -e "\tGoogle API key: "
+                    grep -oE 'AIza[0-9A-Za-z_\-]{35}' main.js >> "$OUTPUT_FILE"           # Google API key
+                    echo -e "\tAWS Access Key ID: "
+                    grep -oE 'AKIA[0-9A-Z]{16}' main.js >> "$OUTPUT_FILE"                 # AWS Access Key ID
+                    echo -e "\tAWS Secret Access Key:"
+                    grep -oE 'sk_live_[0-9a-zA-Z]{24,}' main.js >> "$OUTPUT_FILE"         # Stripe
+                    echo -e "\tGitHub Token:"
+                    grep -oE 'ghp_[0-9a-zA-Z]{36}' main.js >> "$OUTPUT_FILE"              # GitHub token
+                    echo -e "\tJWT:"
+                    grep -oE 'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*' main.js >> "$OUTPUT_FILE"  # JWT
+                    echo -e "\n"
+                    rm -rf main.js
+                    sleep $((RANDOM % 3))
+                done < "$INPUT_FILE"
+            
             - name: Send Telegram Notification
               run: |
-                name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S')-jsfiles.txt"
-                cp ./combined/js_files.txt ./$name
+                name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S')-secrets.txt"
+                cp ./results/secrets.txt" ./$name
                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
                      -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
-                     -F document="@./$name" 
+                     -F document="@./$name"
 
     SendTelegram:
         runs-on: ubuntu-latest

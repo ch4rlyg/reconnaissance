@@ -392,7 +392,7 @@ jobs:
                     cat ./main.js
                     echo -e "\tExtracting urls:"
                     echo "google.com" | grep -oE '"?((http(s?))?:?\/?\/?|\/?)[a-zA-Z0-9._\/-?=&:]+(\.[a-zA-Z0-9._\/-?]+=&:)?"?' 
-                    grep -oE '"?((http(s?))?:?\/?\/?|\/?)[a-zA-Z0-9._\/-?=&:]+(\.[a-zA-Z0-9._\/-?]+=&:)?"?' ./main.js >> "$OUTPUT_FILE" # Extract URLs
+                    cat ./main.js | grep -oE '"?((http(s?))?:?\/?\/?|\/?)[a-zA-Z0-9._\/-?=&:]+(\.[a-zA-Z0-9._\/-?]+=&:)?"?' >> "$OUTPUT_FILE" # Extract URLs
                     echo -e "\tSecrets: "
                     grep -oE '(api[_-]?key|secret|token|auth|password|bearer)["\047]?\s*[:=]\s*["\047][A-Za-z0-9_\-\.]{8,}["\047]' -i ./main.js >> "$OUTPUT_FILE" # Posibles secretos genéricos
                     echo -e "\tGoogle API key: "

@@ -12,7 +12,11 @@ on:
 
 env:
   DOMAIN: ${{ github.event.inputs.domain }}
-        
+
+defaults:
+  run:
+    shell: bash --noprofile --norc {0}
+
 jobs:
     Subfinder:
         runs-on: ubuntu-latest
@@ -390,7 +394,7 @@ jobs:
                     echo -e "\nProcessing: $urls_js"
                     curl -sLk "$urls_js" --max-time 6 -A "$USER_AGENT" 2>/dev/null -o ./main.js
                     cat ./main.js
-                    echo -e "\tExtracting urls:"
+                    echo -e "Extracting urls:"
                     echo "google.com" | grep -oE '"?((http(s?))?:?\/?\/?|\/?)[a-zA-Z0-9._\/-?=&:]+(\.[a-zA-Z0-9._\/-?]+=&:)?"?' 
                     cat ./main.js | grep -oE '"?((http(s?))?:?\/?\/?|\/?)[a-zA-Z0-9._\/-?=&:]+(\.[a-zA-Z0-9._\/-?]+=&:)?"?' >> "$OUTPUT_FILE" # Extract URLs
                     echo -e "\tSecrets: "

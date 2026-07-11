@@ -323,6 +323,7 @@ jobs:
                         | grep -oE '/_next/static/chunks/[^"]+\.js' \
                         | while read -r js; do
                             full_url="$host$js"
+                            echo "$full_url"
                             echo "$full_url" >> "$OUTPUT_FILE"
                           done
                     sleep $((RANDOM % 3))
@@ -334,17 +335,21 @@ jobs:
                             if [[ "$js" == ./*  ]]; then
                                 js=$(echo "$js" | sed 's|^\./|/|') # Remove leading "./"
                                 full_url="$host$js"
+                                echo "$full_url"
                             #2 Si comienza con / → NO agregar / (concatenar directo)
                             elif [[ "$js" == /* ]]; then
                                 full_url="$host$js"
+                                echo "$full_url"
+
                             #3 Si comienza con letra → AGREGAR /
                             elif [[ "$js" =~ ^[a-zA-Z0-9] ]]; then
                                 full_url="$host/$js"
+                                echo "$full_url"
                             fi
                             echo "$full_url" >> "$OUTPUT_FILE2"
                           done
                 done < "$INPUT_FILE"
-                cat "$OUTPUT_FILE" "$OUTPUT_FILE2" | sort -u > ./combined/js_files.txt
+                cat "$OUTPUT_FILE" "$OUTPUT_FILE2" | sort -u >> ./combined/js_files.txt
                 cat ./combined/js_files.txt
             
             - name: Upload JS files

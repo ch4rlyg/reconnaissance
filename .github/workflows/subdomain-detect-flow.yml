@@ -371,7 +371,7 @@ jobs:
             - name: Identify potential secrets in JS files
               run: |
                 INPUT_FILE="./results/js-files/js_files.txt"
-                OUTPUT_FILE="./tmp/secrets.txt"
+                OUTPUT_FILE="./secrets.txt"
                 USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
                 
                 > "$OUTPUT_FILE" #Make file empty before starting

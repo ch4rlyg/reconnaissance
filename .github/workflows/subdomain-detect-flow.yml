@@ -376,7 +376,7 @@ jobs:
                 USER_AGENT="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
                 
                 > "$OUTPUT_FILE" #Make file empty before starting
-                cat "$INPUT_FILE""
+                cat "$INPUT_FILE"
                 while read -r urls_js; do
                     [[ -z "$urls_js" ]] && continue  # Skip empty lines
                     echo -e "\nProcessing: $urls_js"

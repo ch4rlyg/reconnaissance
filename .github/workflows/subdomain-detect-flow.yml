@@ -394,19 +394,19 @@ jobs:
                     echo -e "\nProcessing: $urls_js" >> "$OUTPUT_FILE"
                     curl -sLk "$urls_js" --max-time 6 -A "$USER_AGENT" 2>/dev/null -o ./main.js                    echo -e "Extracting urls:"
                     cat ./main.js | grep -oE '"?(http(s?)://|/)[a-zA-Z0-9._\/-?=&:]+(\.[a-zA-Z0-9._\/-?]+=&:)?"?' >> "$OUTPUT_FILE" # Extract URLs
-                    echo -e "\nSecrets: \n"
+                    echo -e "\nSecrets: \n" >> "$OUTPUT_FILE"
                     cat ./main.js | grep -oiE '(api[_-]?key|secret|token|auth|password|bearer)["\047]?\s*[:=]\s*["\047][A-Za-z0-9_\-\.]{8,}["\047]' >> "$OUTPUT_FILE" # Posibles secretos genéricos
-                    echo -e "\nGoogle API key: \n"
+                    echo -e "\nGoogle API key: \n" >> "$OUTPUT_FILE"
                     cat ./main.js | grep -oE 'AIza[0-9A-Za-z_\-]{35}' >> "$OUTPUT_FILE"           # Google API key
-                    echo -e "\nAWS Access Key ID: \n"
+                    echo -e "\nAWS Access Key ID: \n" >> "$OUTPUT_FILE"
                     cat ./main.js | grep -oE 'AKIA[0-9A-Z]{16}' >> "$OUTPUT_FILE"                 # AWS Access Key ID
-                    echo -e "\nAWS Secret Access Key: \n "
+                    echo -e "\nAWS Secret Access Key: \n " >> "$OUTPUT_FILE"
                     cat ./main.js | grep -oE 'sk_live_[0-9a-zA-Z]{24,}' >> "$OUTPUT_FILE"         # Stripe
-                    echo -e "\nGitHub Token: \n" 
+                    echo -e "\nGitHub Token: \n" >> "$OUTPUT_FILE"
                     cat ./main.js | grep -oE 'ghp_[0-9a-zA-Z]{36}' >> "$OUTPUT_FILE"              # GitHub token
-                    echo -e "\nJWT: \n"
+                    echo -e "\nJWT: \n" >> "$OUTPUT_FILE"
                     cat ./main.js | grep -oE 'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*' >> "$OUTPUT_FILE"  # JWT
-                    echo -e "\n"
+                    echo -e "\n" >> "$OUTPUT_FILE"
                     rm -rf ./main.js
                     sleep $((RANDOM % 3))
                 done < "$INPUT_FILE"

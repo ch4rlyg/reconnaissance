@@ -465,6 +465,7 @@ jobs:
               run: |
                   INPUT_FILE="./takeover/subdomains_alive/all_results_sorted.txt"
                   OUTPUT_FILE="./takeover/subdomain_takeover_results.txt"
+                  > "$OUTPUT_FILE"
                   while read -r subdomain; do
                     resolver=$(dig CNAME "$subdomain" +short)
                     filter=$(echo "$resolver" | grep -iE 's3|github\.io|githubusercontent|heroku|azurewebsites|cloudfront|netlify|ghost\.io|wordpress|surge\.sh|shopify|statuspage|storage\.googleapis|firebaseapp|vercel|render|fly\.io|railway|pythonanywhere|000webhost|weebly|tumblr|blogspot|fastly|akamaiedge|edgekey|digitaloceanspaces|nyc3\.digitaloceanspaces|sfo3\.digitaloceanspaces|ams3\.digitaloceanspaces|fra1\.digitaloceanspaces|blob\.core\.windows\.net|file\.core\.windows\.net|queue\.core\.windows\.net|table\.core\.windows\.net|azureedge\.net|azurewebsites\.net|cloudapp\.net|trafficmanager\.net|appservice|azure-api\.net|azure-mobile\.net|azure-sql\.net|mysql\.database\.azure\.com|postgres\.database\.azure\.com|redis\.cache\.windows\.net|mongodb\.cosmos\.azure\.com|cassandra\.cosmos\.azure\.com|gremlin\.cosmos\.azure\.com|table\.cosmos\.azure\.com|s3\.amazonaws\.com|s3-website|s3-\w+\.amazonaws\.com|s3\.dualstack|r2\.cloudflarestorage\.com|backblazeb2|b2\.cloud|wasabisys|dreamhost|linodeobjects|servercentral|jp\-osaka|sgp\-1|syd\-1|fra\-1|ams\-1|blr\-1|sfo\-3|nyc\-3|tor\-1|lon\-1|syd\-1|sin\-1')

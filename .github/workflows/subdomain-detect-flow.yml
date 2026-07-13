@@ -464,7 +464,7 @@ jobs:
             - name: Run subdomain takeover check
               run: |
                   INPUT_FILE="./takeover/subdomains_alive/all_results_sorted.txt"
-                  OUTPUT_FILE="./takeover/subdomain_takeover_results.txt"
+                  OUTPUT_FILE="./subdomain_takeover_results.txt"
                   > "$OUTPUT_FILE"
                   while read -r subdomain; do
                     resolver=$(dig CNAME "$subdomain" +short)
@@ -483,7 +483,7 @@ jobs:
             - name: Send Telegram Notification
               run: |
                 name="report-${{ env.DOMAIN }}-$(date '+%Y-%m-%d_%H-%M-%S')-SubdomainTakeover.txt"
-                cp ./takeover/subdomain_takeover_results.txt ./$name
+                cp ./subdomain_takeover_results.txt ./$name
                 curl -s -X POST "https://api.telegram.org/bot${{ secrets.TOKENTELEGRAM }}/sendDocument" \
                      -F chat_id="${{ secrets.CHATIDTELEGRAM }}" \
                      -F document="@./$name"
